@@ -6,6 +6,7 @@ import com.google.gson.annotations.SerializedName
 import org.json.JSONObject
 
 class LocationConverters() {
+
     @TypeConverter
     fun toLocation(string: String): Location {
         val json = JSONObject(string)

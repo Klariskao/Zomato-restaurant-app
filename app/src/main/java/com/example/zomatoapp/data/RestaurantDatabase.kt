@@ -7,7 +7,7 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 
 @Database(entities = [Restaurant::class], version = 1, exportSchema = false)
-@TypeConverters(LocationConverters::class)
+@TypeConverters(LocationConverters::class, UserRatingConverters::class)
 abstract class RestaurantDatabase: RoomDatabase() {
 
     abstract fun restaurantDao(): RestaurantDAO

@@ -18,5 +18,7 @@ data class Restaurant(
     @SerializedName("menu_url") val menu_url: String?,
     @SerializedName("order_url") val order_url: String?,
     @SerializedName("phone_numbers") val phone_numbers: String?,
+    @SerializedName("featured_image") var featuredImage: String? = null,
+    @SerializedName("user_rating") var userRating: UserRating? = UserRating(),
     var distance: Int = 0
 )
