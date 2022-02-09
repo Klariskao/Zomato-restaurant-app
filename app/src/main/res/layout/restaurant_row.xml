@@ -4,21 +4,21 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/restaurantRow"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:paddingBottom="4dp">
 
     <ImageView
         android:id="@+id/featuredImage"
         android:layout_width="150dp"
-        android:layout_height="wrap_content"
+        android:layout_height="60dp"
         android:layout_marginStart="8dp"
         android:layout_marginLeft="8dp"
-        android:layout_marginBottom="16dp"
         android:adjustViewBounds="true"
         android:contentDescription="@string/food_image"
-        android:scaleType="fitCenter"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:scaleType="centerCrop"
+        app:layout_constraintBottom_toBottomOf="@+id/ratingBar"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/restaurantName"
         app:srcCompat="@drawable/food_image" />
 
     <TextView
@@ -43,7 +43,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginLeft="16dp"
-        android:layout_marginTop="4dp"
+        android:layout_marginTop="2dp"
         app:layout_constraintStart_toEndOf="@+id/featuredImage"
         app:layout_constraintTop_toBottomOf="@+id/restaurantName" />
 
