@@ -14,4 +14,7 @@ interface RestaurantDAO {
 
     @Query("SELECT * FROM restaurant_table ORDER BY distance ASC")
     fun readAllData(): LiveData<List<Restaurant>>
+
+    @Query("SELECT * FROM restaurant_table WHERE id LIKE :searchedId")
+    fun getRestaurantFromId(searchedId: Int): Restaurant
 }

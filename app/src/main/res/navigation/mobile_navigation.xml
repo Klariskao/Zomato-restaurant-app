@@ -9,17 +9,24 @@
         android:id="@+id/navigation_home"
         android:name="com.example.zomatoapp.ui.home.HomeFragment"
         android:label="@string/title_home"
-        tools:layout="@layout/fragment_home" />
+        tools:layout="@layout/fragment_home" >
+        <action
+            android:id="@+id/action_navigation_home_to_restaurantDetail"
+            app:destination="@id/restaurantDetail" />
+    </fragment>
 
     <fragment
         android:id="@+id/navigation_dashboard"
-        android:name="com.example.zomatoapp.ui.dashboard.DashboardFragment"
+        android:name="com.example.zomatoapp.ui.map.MapFragment"
         android:label="@string/title_map"
         tools:layout="@layout/fragment_map" />
 
     <fragment
-        android:id="@+id/navigation_notifications"
-        android:name="com.example.zomatoapp.ui.notifications.NotificationsFragment"
-        android:label="@string/title_notifications"
-        tools:layout="@layout/fragment_notifications" />
+        android:id="@+id/restaurantDetail"
+        android:name="com.example.zomatoapp.ui.restaurant.RestaurantDetail"
+        android:label="RestaurantDetail" >
+        <argument
+            android:name="restaurantId"
+            app:argType="integer" />
+    </fragment>
 </navigation>

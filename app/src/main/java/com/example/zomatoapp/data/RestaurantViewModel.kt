@@ -9,7 +9,7 @@ import kotlinx.coroutines.launch
 
 class RestaurantViewModel(application: Application): AndroidViewModel(application) {
 
-    private val readAllData: LiveData<List<Restaurant>>
+    val readAllData: LiveData<List<Restaurant>>
     private val repository: RestaurantRepository
 
     init {
@@ -22,5 +22,9 @@ class RestaurantViewModel(application: Application): AndroidViewModel(applicatio
         viewModelScope.launch(Dispatchers.IO) {
             repository.addRestaurant(restaurant)
         }
+    }
+
+    fun queryRestaurant(id: Int): Restaurant {
+        return repository.queryRestaurant(id)
     }
 }
