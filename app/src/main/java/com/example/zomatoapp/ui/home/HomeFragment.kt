@@ -1,7 +1,6 @@
 package com.example.zomatoapp.ui.home
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -47,9 +46,7 @@ class HomeFragment: Fragment() {
         // Restaurant View Model
         restaurantViewModel = ViewModelProvider(this).get(RestaurantViewModel::class.java)
         restaurantViewModel.readAllData.observe(viewLifecycleOwner, Observer {
-            Log.d("TAG", "View model data for rv: $it")
             mAdapter.setData(it)
-            Log.d("TAG", "Working")
         })
     }
 

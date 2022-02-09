@@ -9,21 +9,23 @@ import android.webkit.WebViewClient
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.navArgs
-import com.example.zomatoapp.data.RestaurantDAO
+import com.example.zomatoapp.data.Restaurant
 import com.example.zomatoapp.data.RestaurantViewModel
-import com.example.zomatoapp.databinding.FragmentHomeBinding
 import com.example.zomatoapp.databinding.RestaurantDetailBinding
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class RestaurantDetail: Fragment() {
 
     private var _binding: RestaurantDetailBinding? = null
     private val binding get() = _binding!!
 
-    // ID of restaurant
-    private val restaurantId: Int by navArgs()
-
-    private val restaurantViewModel = ViewModelProvider(this).get(RestaurantViewModel::class.java)
-    private val restaurantInfo = restaurantViewModel.queryRestaurant(restaurantId)
+    private val args: RestaurantDetailArgs by navArgs()
+    private lateinit var restaurantInfo: Restaurant
+    private lateinit var restaurantViewModel: RestaurantViewModel
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         _binding = RestaurantDetailBinding.inflate(inflater, container, false)
@@ -33,13 +35,35 @@ class RestaurantDetail: Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        Log.d("TAG", "Current restaurant: $restaurantInfo")
+        // ID of restaurant
+        val resId = args.restaurantId
 
-        binding.restaurantDetailName.text = restaurantInfo.name
+        restaurantViewModel = ViewModelProvider(this).get(RestaurantViewModel::class.java)
 
-        val webView = binding.webView
-        webView.webViewClient = WebViewClient()
-        restaurantInfo.menu_url?.let { webView.loadUrl(it) }
+        getRestaurantFromDatabase(resId)
+    }
+
+    private fun getRestaurantFromDatabase(id: Int) {
+        CoroutineScope(IO).launch {
+            restaurantInfo = restaurantViewModel.queryRestaurant(id)
+            Log.d("TAG", id.toString())
+            Log.d("TAG", "Current restaurant: $restaurantInfo")
+            restaurantInfo.run { setUI() }
+        }
+    }
+
+    private fun setUI() {
+        CoroutineScope(IO).launch {
+            binding.restaurantDetailName.text = restaurantInfo.name
+            binding.restaurantLocation.text = restaurantInfo.location?.address
+            binding.phoneNumber.text = restaurantInfo.phone_numbers
+
+            val webView = binding.webView
+            webView.post {
+                webView.webViewClient = WebViewClient()
+                restaurantInfo.menu_url?.let { webView.loadUrl(it) }
+            }
+        }
     }
 
     override fun onDestroyView() {
