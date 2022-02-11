@@ -11,4 +11,8 @@ class RestaurantRepository(private val RestaurantDao: RestaurantDAO) {
     suspend fun addRestaurant(restaurant: Restaurant) {
         RestaurantDao.addRestaurant(restaurant)
     }
+
+    suspend fun updateRestaurant(distance: Float?, id: Int?) {
+        RestaurantDao.updateRestaurant(distance, id)
+    }
 }

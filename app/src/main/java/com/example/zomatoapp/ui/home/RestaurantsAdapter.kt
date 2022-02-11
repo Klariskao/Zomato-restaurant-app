@@ -1,7 +1,7 @@
 package com.example.zomatoapp.ui.home
 
+import android.content.Context
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
@@ -9,8 +9,10 @@ import com.bumptech.glide.Glide
 import com.example.zomatoapp.R
 import com.example.zomatoapp.data.Restaurant
 import com.example.zomatoapp.databinding.RestaurantRowBinding
+import kotlin.math.roundToInt
 
-class RestaurantsAdapter() : RecyclerView.Adapter<RestaurantsAdapter.ViewHolder>() {
+
+class RestaurantsAdapter(private val context: Context) : RecyclerView.Adapter<RestaurantsAdapter.ViewHolder>() {
 
     private var restaurantList = emptyList<Restaurant>()
 
@@ -23,7 +25,7 @@ class RestaurantsAdapter() : RecyclerView.Adapter<RestaurantsAdapter.ViewHolder>
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val currentItem = restaurantList[position]
-        holder.bind(currentItem)
+        holder.bind(currentItem, context)
     }
 
     fun setData(restaurants: List<Restaurant>) {
@@ -33,13 +35,17 @@ class RestaurantsAdapter() : RecyclerView.Adapter<RestaurantsAdapter.ViewHolder>
 
     class ViewHolder(private val binding: RestaurantRowBinding): RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(item: Restaurant) {
+        fun bind(item: Restaurant, context: Context) {
             loadImage(item)
             binding.restaurantName.text = item.name
             binding.priceRange.text = item.price_range?.let { "$".repeat(it) }
-            binding.distance.text = "${item.distance} mil"
+
+            if(item.distance != null) {
+                binding.distance.text = context.resources.getString(R.string.number_meters, item.distance!!.roundToInt())
+            }
+
             binding.ratingBar.rating = item.userRating?.aggregateRating?.toFloat() ?: 0F
-            binding.votes.text = "(${item.userRating?.votes})"
+            binding.votes.text = context.resources.getString(R.string.number_in_brackets, item.userRating?.votes)
 
             binding.restaurantRow.setOnClickListener {
                 val action = HomeFragmentDirections.actionNavigationHomeToRestaurantDetail(item.id!!)

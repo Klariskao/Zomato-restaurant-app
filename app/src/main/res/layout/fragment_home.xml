@@ -49,6 +49,7 @@
         android:layout_marginRight="16dp"
         android:background="#FFFFFF"
         android:elevation="4dp"
+        android:focusable="false"
         app:defaultQueryHint="Search Location"
         app:iconifiedByDefault="false"
         app:layout_constraintEnd_toEndOf="parent"

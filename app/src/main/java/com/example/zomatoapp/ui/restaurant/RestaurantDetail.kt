@@ -1,7 +1,6 @@
 package com.example.zomatoapp.ui.restaurant
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,9 +13,7 @@ import com.example.zomatoapp.data.RestaurantViewModel
 import com.example.zomatoapp.databinding.RestaurantDetailBinding
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class RestaurantDetail: Fragment() {
 
@@ -46,8 +43,6 @@ class RestaurantDetail: Fragment() {
     private fun getRestaurantFromDatabase(id: Int) {
         CoroutineScope(IO).launch {
             restaurantInfo = restaurantViewModel.queryRestaurant(id)
-            Log.d("TAG", id.toString())
-            Log.d("TAG", "Current restaurant: $restaurantInfo")
             restaurantInfo.run { setUI() }
         }
     }

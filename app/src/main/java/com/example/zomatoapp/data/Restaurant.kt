@@ -1,5 +1,6 @@
 package com.example.zomatoapp.data
 
+import android.util.Log
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.google.gson.annotations.SerializedName
@@ -17,5 +18,5 @@ data class Restaurant(
     @SerializedName("phone_numbers") val phone_numbers: String?,
     @SerializedName("featured_image") var featuredImage: String?,
     @SerializedName("user_rating") var userRating: UserRating? = UserRating(),
-    var distance: Int = 0
+    var distance: Float? = null
 )

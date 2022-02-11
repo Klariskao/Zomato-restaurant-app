@@ -3,4 +3,7 @@
     <string name="title_home">Home</string>
     <string name="title_map">Map</string>
     <string name="food_image">food image</string>
+
+    <string name="number_meters">%1$d m</string>
+    <string name="number_in_brackets">(%1$d)</string>
 </resources>

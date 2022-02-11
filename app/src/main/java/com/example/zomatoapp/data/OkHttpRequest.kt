@@ -1,11 +1,16 @@
 package com.example.zomatoapp.data
 
-import android.util.Log
+import android.content.Context
+import android.os.Handler
+import android.os.Looper
+import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStoreOwner
+import androidx.lifecycle.viewModelScope
 import com.google.gson.GsonBuilder
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import okhttp3.*
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import java.io.IOException
 
 class OkHttpRequest(val owner: ViewModelStoreOwner) {
@@ -16,20 +21,20 @@ class OkHttpRequest(val owner: ViewModelStoreOwner) {
 
     private val client = OkHttpClient()
 
-    fun makeRequest() {
+    fun makeRequest(context: Context) {
         client.newCall(request).enqueue(object: Callback {
             override fun onFailure(call: Call, e: IOException) {
-                Log.d("TAG", "Failed to fetch data")
+                Handler(Looper.getMainLooper()).postDelayed( {
+                    Toast.makeText(context, "Failed to fetch data. " +
+                            "Please check your internet connection and try again.", Toast.LENGTH_LONG).show()
+                }, 2000)
             }
 
             override fun onResponse(call: Call, response: Response) {
-                Log.d("TAG", "Got response")
                 val body = response.body?.string()
                 if (body != null) {
-                    //Log.d("TAG", body)
                     val gson = GsonBuilder().create()
                     val restaurantsFeed = gson.fromJson(body, Result::class.java)
-                    //Log.d("TAG", restaurantsFeed.restaurants.toString())
 
                     val mRestaurantViewModel = ViewModelProvider(owner).get(RestaurantViewModel::class.java)
                     restaurantsFeed.restaurants.forEach {
