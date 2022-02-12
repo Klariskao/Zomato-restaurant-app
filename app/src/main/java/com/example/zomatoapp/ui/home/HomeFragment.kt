@@ -27,6 +27,8 @@ import com.example.zomatoapp.data.GetUserLocation
 import com.example.zomatoapp.data.OkHttpRequest
 import com.example.zomatoapp.data.RestaurantViewModel
 import com.example.zomatoapp.databinding.FragmentHomeBinding
+import com.example.zomatoapp.ui.home.search.SuggestionClickListener
+import com.example.zomatoapp.ui.home.search.SuggestionsAdapter
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import kotlinx.coroutines.CoroutineScope
@@ -34,9 +36,10 @@ import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.net.URLEncoder
 
 // Fragment for home screen with RecyclerView of restaurants
-class HomeFragment: Fragment() {
+class HomeFragment: Fragment(), SuggestionClickListener {
 
     // Set up binding variables
     private var _binding: FragmentHomeBinding? = null
@@ -53,6 +56,14 @@ class HomeFragment: Fragment() {
     // Restaurants Recycler View adapter
     private lateinit var mAdapter: RestaurantsAdapter
 
+    // Suggestions for search Recycler View
+    lateinit var suggestionsRecyclerView: RecyclerView
+    // Search view
+    lateinit var searchView: SearchView
+
+    // Result of location search API
+    lateinit var result: JsonObject
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
         return binding.root
@@ -61,6 +72,9 @@ class HomeFragment: Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentHomeBinding.inflate(layoutInflater)
+
+        suggestionsRecyclerView = view.findViewById(R.id.suggestionsRecyclerView)
+        searchView = view.findViewById(R.id.searchView)
 
         // Get user's location
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireContext())
@@ -90,18 +104,40 @@ class HomeFragment: Fragment() {
             mAdapter.setData(it)
         })
 
-        view.findViewById<SearchView>(R.id.searchView).setOnQueryTextListener(object: SearchView.OnQueryTextListener {
+        searchView.setOnQueryTextListener(object: SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String): Boolean {
                 Log.d("TAG", "Searching coordinates for $query")
                 Toast.makeText(requireContext(), "Searching.. please wait", Toast.LENGTH_SHORT).show()
                 CoroutineScope(IO).launch {
                     makeApiRequest(query)
                 }
+
+                searchView.setQuery("", false)
+                searchView.clearFocus()
+
                 return false
             }
 
-            override fun onQueryTextChange(p0: String?): Boolean {
-                return false
+            override fun onQueryTextChange(query: String?): Boolean {
+                if (!query.isNullOrBlank()) {
+                    CoroutineScope(IO).launch {
+                        result = stringToJSON(GetUserLocation(query)
+                            .makeRequest(GetUserLocation(query).makeUrlFromPartData(URLEncoder.encode(query, "utf-8"))))
+
+                        Log.d("TAG", "Searching for $query")
+                        withContext(Main) {
+                            suggestionsRecyclerView.apply {
+                                layoutManager = LinearLayoutManager(context)
+                                adapter = SuggestionsAdapter(result, this@HomeFragment)
+                            }
+                            suggestionsRecyclerView.visibility = View.VISIBLE
+                        }
+                    }
+                }
+                else {
+                    suggestionsRecyclerView.visibility = View.GONE
+                }
+                return true
             }
         })
     }
@@ -194,9 +230,6 @@ class HomeFragment: Fragment() {
             val lat = degreeConversion(result1.lookup<String>("results.annotations.DMS.lat")[0])
             val lon = degreeConversion(result1.lookup<String>("results.annotations.DMS.lng")[0])
 
-            Log.d("TAG", lat.toString())
-            Log.d("TAG", lon.toString())
-
             // Update Restaurant distance
             restaurantViewModel.readAllData.value?.forEach {
                 restaurantViewModel.updateRestaurant(
@@ -214,7 +247,8 @@ class HomeFragment: Fragment() {
 
     private fun getCoordinates(city: String): JsonObject {
         Log.d("TAG", "Getting result")
-        return stringToJSON(GetUserLocation(city).makeRequest())
+        return stringToJSON(GetUserLocation(URLEncoder.encode(city, "utf-8"))
+            .makeRequest(GetUserLocation(city).makeUrl(city)))
     }
 
     private fun stringToJSON(string: String): JsonObject {
@@ -228,5 +262,21 @@ class HomeFragment: Fragment() {
         val new = deg.replace('°', ' ').replace('\'', ' ').replace("\'\'", " ")
         val newList = new.split("  ")
         return (newList[0].toInt() + newList[1].toInt() / 60.0 * direction.getValue(newList[3]))
+    }
+
+    override fun onSuggestionClickClickAction(position: Int) {
+        CoroutineScope(IO).launch {
+            val query = result.lookup<String>("geonames.toponymName")[position] + ", " +
+                    result.lookup<String>("geonames.adminName1")[position] + ", " +
+                    result.lookup<String>("geonames.countryName")[position]
+            Log.d("TAG", "Searching weather for ${result.lookup<String>("geonames.toponymName")[position] + ", " +
+                    result.lookup<String>("geonames.adminName1")[position] + ", " +
+                    result.lookup<String>("geonames.countryName")[position]}")
+            makeApiRequest(query)
+        }
+
+        searchView.setQuery("", false)
+        searchView.clearFocus()
+        suggestionsRecyclerView.visibility = View.GONE
     }
 }
