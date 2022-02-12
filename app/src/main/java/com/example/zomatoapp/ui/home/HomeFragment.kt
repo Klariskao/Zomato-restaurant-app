@@ -11,6 +11,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.widget.SearchView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -18,12 +19,21 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.beust.klaxon.JsonObject
+import com.beust.klaxon.Parser
+import com.beust.klaxon.lookup
 import com.example.zomatoapp.R
+import com.example.zomatoapp.data.GetUserLocation
 import com.example.zomatoapp.data.OkHttpRequest
 import com.example.zomatoapp.data.RestaurantViewModel
 import com.example.zomatoapp.databinding.FragmentHomeBinding
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 // Fragment for home screen with RecyclerView of restaurants
 class HomeFragment: Fragment() {
@@ -68,14 +78,31 @@ class HomeFragment: Fragment() {
 
         // Restaurant View Model
         restaurantViewModel = ViewModelProvider(this).get(RestaurantViewModel::class.java)
+
         // Update Restaurant distance
         restaurantViewModel.readAllData.value?.forEach {
             restaurantViewModel.updateRestaurant(
                     getDistance(lat, lon, it.location?.latitude, it.location?.longitude), it.id)
-
         }
+
+        // Observe restaurants data
         restaurantViewModel.readAllData.observe(viewLifecycleOwner, Observer {
             mAdapter.setData(it)
+        })
+
+        view.findViewById<SearchView>(R.id.searchView).setOnQueryTextListener(object: SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String): Boolean {
+                Log.d("TAG", "Searching coordinates for $query")
+                Toast.makeText(requireContext(), "Searching.. please wait", Toast.LENGTH_SHORT).show()
+                CoroutineScope(IO).launch {
+                    makeApiRequest(query)
+                }
+                return false
+            }
+
+            override fun onQueryTextChange(p0: String?): Boolean {
+                return false
+            }
         })
     }
 
@@ -158,5 +185,48 @@ class HomeFragment: Fragment() {
         }
 
         return null
+    }
+
+    private suspend fun makeApiRequest(city: String) {
+        try {
+            val result1 = getCoordinates(city)
+
+            val lat = degreeConversion(result1.lookup<String>("results.annotations.DMS.lat")[0])
+            val lon = degreeConversion(result1.lookup<String>("results.annotations.DMS.lng")[0])
+
+            Log.d("TAG", lat.toString())
+            Log.d("TAG", lon.toString())
+
+            // Update Restaurant distance
+            restaurantViewModel.readAllData.value?.forEach {
+                restaurantViewModel.updateRestaurant(
+                        getDistance(lat, lon, it.location?.latitude, it.location?.longitude), it.id)
+            }
+
+        }
+        catch (exception: java.lang.Exception) {
+            Log.d("TAG", exception.toString())
+            withContext(Main) {
+                Toast.makeText(requireContext(), "Oops.. that didn't work out. Please try again", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun getCoordinates(city: String): JsonObject {
+        Log.d("TAG", "Getting result")
+        return stringToJSON(GetUserLocation(city).makeRequest())
+    }
+
+    private fun stringToJSON(string: String): JsonObject {
+        val parser: Parser = Parser.default()
+        val stringBuilder: StringBuilder = StringBuilder(string)
+        return parser.parse(stringBuilder) as JsonObject
+    }
+
+    private fun degreeConversion(deg: String): Double {
+        val direction: Map<String, Int> = mapOf(" N" to 1, " S" to -1, " E" to 1, " W" to -1)
+        val new = deg.replace('°', ' ').replace('\'', ' ').replace("\'\'", " ")
+        val newList = new.split("  ")
+        return (newList[0].toInt() + newList[1].toInt() / 60.0 * direction.getValue(newList[3]))
     }
 }

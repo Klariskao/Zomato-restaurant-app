@@ -63,6 +63,7 @@ dependencies {
 
     // JSON parsing
     implementation 'com.google.code.gson:gson:2.8.6'
+    implementation "com.beust:klaxon:5.0.5"
 
     // Room components
     implementation "androidx.room:room-runtime:2.2.5"
