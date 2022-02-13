@@ -2,6 +2,8 @@ package com.example.zomatoapp.data
 
 import androidx.lifecycle.LiveData
 
+/* Restaurant repository class */
+
 class RestaurantRepository(private val RestaurantDao: RestaurantDAO) {
 
     val readAllData: LiveData<List<Restaurant>> = RestaurantDao.readAllData()
@@ -12,7 +14,7 @@ class RestaurantRepository(private val RestaurantDao: RestaurantDAO) {
         RestaurantDao.addRestaurant(restaurant)
     }
 
-    suspend fun updateRestaurant(distance: Float?, id: Int?) {
+    fun updateRestaurant(distance: Float?, id: Int?) {
         RestaurantDao.updateRestaurant(distance, id)
     }
 }

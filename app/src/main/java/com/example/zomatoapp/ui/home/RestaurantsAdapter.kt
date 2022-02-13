@@ -11,9 +11,11 @@ import com.example.zomatoapp.data.Restaurant
 import com.example.zomatoapp.databinding.RestaurantRowBinding
 import kotlin.math.roundToInt
 
+/* An adapter class for Restaurants RecyclerView */
 
 class RestaurantsAdapter(private val context: Context) : RecyclerView.Adapter<RestaurantsAdapter.ViewHolder>() {
 
+    // List of restaurants to bind
     private var restaurantList = emptyList<Restaurant>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {

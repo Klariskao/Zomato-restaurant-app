@@ -4,9 +4,11 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.webkit.WebSettings
 import android.webkit.WebViewClient
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.findNavController
 import androidx.navigation.fragment.navArgs
 import com.example.zomatoapp.data.Restaurant
 import com.example.zomatoapp.data.RestaurantViewModel
@@ -14,6 +16,9 @@ import com.example.zomatoapp.databinding.RestaurantDetailBinding
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.launch
+
+/* Class for RestaurantDetail containing restaurantDetailName, restaurantLocation,
+   phoneNumber and a WebView containing menu of the restaurant */
 
 class RestaurantDetail: Fragment() {
 
@@ -24,7 +29,7 @@ class RestaurantDetail: Fragment() {
     private lateinit var restaurantInfo: Restaurant
     private lateinit var restaurantViewModel: RestaurantViewModel
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = RestaurantDetailBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -37,7 +42,14 @@ class RestaurantDetail: Fragment() {
 
         restaurantViewModel = ViewModelProvider(this).get(RestaurantViewModel::class.java)
 
+        // Get the restaurant from database
         getRestaurantFromDatabase(resId)
+
+        // Back button functionality
+        binding.buttonBack.setOnClickListener {
+            val action = RestaurantDetailDirections.actionRestaurantDetailToNavigationHome()
+            it.findNavController().navigate(action)
+        }
     }
 
     private fun getRestaurantFromDatabase(id: Int) {
@@ -54,9 +66,21 @@ class RestaurantDetail: Fragment() {
             binding.phoneNumber.text = restaurantInfo.phone_numbers
 
             val webView = binding.webView
+
             webView.post {
+                webView.settings.allowContentAccess = true
+                webView.settings.loadWithOverviewMode = true
+                webView.settings.useWideViewPort = true
+                webView.settings.allowFileAccess = true
+                webView.settings.domStorageEnabled = true
+                webView.settings.cacheMode = WebSettings.LOAD_DEFAULT
+                webView.settings.loadsImagesAutomatically = true
+
+                webView.settings.javaScriptEnabled = true
+                webView.settings.javaScriptCanOpenWindowsAutomatically = true
+
                 webView.webViewClient = WebViewClient()
-                restaurantInfo.menu_url?.let { webView.loadUrl(it) }
+                webView.loadUrl(restaurantInfo.menu_url!!)
             }
         }
     }

@@ -7,6 +7,8 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
+/* RestaurantViewModel for restaurant database */
+
 class RestaurantViewModel(application: Application): AndroidViewModel(application) {
 
     val readAllData: LiveData<List<Restaurant>>

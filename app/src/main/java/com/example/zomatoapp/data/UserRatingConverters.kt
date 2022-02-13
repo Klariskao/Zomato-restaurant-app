@@ -3,6 +3,8 @@ package com.example.zomatoapp.data
 import androidx.room.TypeConverter
 import org.json.JSONObject
 
+/* Class for conversion of UserRating class */
+
 class UserRatingConverters {
 
     @TypeConverter

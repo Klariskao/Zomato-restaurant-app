@@ -1,9 +1,10 @@
 package com.example.zomatoapp.data
 
-import android.util.Log
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.google.gson.annotations.SerializedName
+
+/* Class Restaurant containing restaurant data */
 
 @Entity(tableName = "restaurant_table")
 data class Restaurant(

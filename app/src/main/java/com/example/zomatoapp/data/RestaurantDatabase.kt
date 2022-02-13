@@ -6,6 +6,8 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 
+/* Room database containing restaurant data */
+
 @Database(entities = [Restaurant::class], version = 1, exportSchema = false)
 @TypeConverters(LocationConverters::class, UserRatingConverters::class)
 abstract class RestaurantDatabase: RoomDatabase() {

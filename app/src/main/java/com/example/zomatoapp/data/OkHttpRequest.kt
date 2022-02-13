@@ -6,12 +6,11 @@ import android.os.Looper
 import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStoreOwner
-import androidx.lifecycle.viewModelScope
 import com.google.gson.GsonBuilder
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import okhttp3.*
 import java.io.IOException
+
+/* Class for making OkHttp requests fetching Restaurant data and saving it to database */
 
 class OkHttpRequest(val owner: ViewModelStoreOwner) {
 
@@ -23,6 +22,7 @@ class OkHttpRequest(val owner: ViewModelStoreOwner) {
 
     fun makeRequest(context: Context) {
         client.newCall(request).enqueue(object: Callback {
+
             override fun onFailure(call: Call, e: IOException) {
                 Handler(Looper.getMainLooper()).postDelayed( {
                     Toast.makeText(context, "Failed to fetch data. " +
@@ -35,8 +35,8 @@ class OkHttpRequest(val owner: ViewModelStoreOwner) {
                 if (body != null) {
                     val gson = GsonBuilder().create()
                     val restaurantsFeed = gson.fromJson(body, Result::class.java)
-
                     val mRestaurantViewModel = ViewModelProvider(owner).get(RestaurantViewModel::class.java)
+                    // Add restaurants to database
                     restaurantsFeed.restaurants.forEach {
                         it.restaurant?.let { restaurant ->
                             mRestaurantViewModel.addRestaurant(restaurant)

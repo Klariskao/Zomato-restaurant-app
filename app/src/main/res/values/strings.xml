@@ -6,5 +6,8 @@
 
     <string name="number_meters">%1$d m</string>
     <string name="number_in_brackets">(%1$d)</string>
+    <string name="three_strings">%1$s, %2$s, %3$s</string>
     <string name="explore_restaurants_near_you">Explore Restaurants Near You</string>
+    <string name="phone_number_s">Phone number(s):</string>
+    <string name="address">Address:</string>
 </resources>

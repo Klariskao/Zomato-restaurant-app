@@ -3,6 +3,7 @@ package com.example.zomatoapp.data
 import androidx.lifecycle.LiveData
 import androidx.room.*
 
+/* RestaurantDAO implementing database functions */
 
 @Dao
 interface RestaurantDAO {

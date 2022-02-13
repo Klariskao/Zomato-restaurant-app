@@ -2,6 +2,8 @@ package com.example.zomatoapp.data
 
 import com.google.gson.annotations.SerializedName
 
+/* Location class, part of Restaurant database */
+
 data class Location(
 
     @SerializedName("address") var address: String? = null,
