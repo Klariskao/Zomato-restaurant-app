@@ -1,1 +1,1 @@
-# Zomato-restaurant-app
+An app fetching a JSON from a simulated Zomato API call using Okhttp. Response stored in a Room database in form of Restaurant objects converted with the aid of Retrofit. The results may be viewed on the Home page in a RecyclerView or on a map.
